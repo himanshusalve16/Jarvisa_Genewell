@@ -1,0 +1,24 @@
+# Ignore node modules
+node_modules/
+
+# Ignore build files
+dist/
+build/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore environment files (never push secrets)
+.env
+
+# Ignore logs
+*.log
+
+# Ignore IDE/project settings
+.vscode/
+.idea/
+
+# Ignore temporary files
+*.tmp
+*.swp
