@@ -11,6 +11,7 @@ const Navbar = () => {
     { path: '/', label: 'Home' },
     { path: '/upload', label: 'Upload Report' },
     { path: '/risk-score', label: 'Risk Score' },
+    { path: '/dna-education', label: 'DNA Education' },
     { path: '/about', label: 'About' }
   ];
 

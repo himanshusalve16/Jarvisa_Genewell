@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import UploadReport from './pages/UploadReport';
 import RiskScore from './pages/RiskScore';
 import About from './pages/About';
+import DNAEducation from './pages/DNAEducation';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/upload" element={<UploadReport />} />
             <Route path="/risk-score" element={<RiskScore />} />
+            <Route path="/dna-education" element={<DNAEducation />} />
             <Route path="/about" element={<About />} />
           </Routes>
         </main>
