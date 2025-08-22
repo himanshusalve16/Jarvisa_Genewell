@@ -1,0 +1,45 @@
+
+    GeneWell Medical Report
+    =======================
+    
+    Patient Information:
+    ===================
+    Patient ID: P001
+    Age: 45
+    Gender: Female
+    Blood Group: A+
+    Medical History: Diabetes, Hypertension
+    Report Type: Diagnostic
+    
+    Gene Analysis Results:
+    =====================
+    
+    Gene: TP53
+    Value: 0.8
+    Normal Range: 1.0 - 2.0
+    Status: Deficient
+    Notes: Tumor suppressor gene mutation detected
+    
+    Gene: BRCA1
+    Value: 2.5
+    Normal Range: 1.0 - 2.0
+    Status: Excessive
+    Notes: Breast cancer susceptibility gene elevated
+    
+    Gene: APC
+    Value: 1.5
+    Normal Range: 1.0 - 2.0
+    Status: Normal
+    Notes: Adenomatous polyposis coli gene within normal range
+    
+    Gene: MLH1
+    Value: 0.6
+    Normal Range: 1.0 - 2.0
+    Status: Deficient
+    Notes: DNA mismatch repair gene mutation
+    
+    Summary:
+    ========
+    Multiple gene mutations detected. High risk for cancer development.
+    Recommend genetic counseling and regular screening.
+    
