@@ -274,4 +274,5 @@ const RiskScore = () => {
   );
 };
 
+
 export default RiskScore;
