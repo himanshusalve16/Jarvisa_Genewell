@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeneWell - Gene Disease Risk Prediction</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .upload-section {
+            border: 2px dashed #ddd;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            transition: border-color 0.3s;
+        }
+        .upload-section:hover {
+            border-color: #667eea;
+        }
+        .upload-section.dragover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+        .file-input {
+            display: none;
+        }
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        .upload-btn:hover {
+            transform: translateY(-2px);
+        }
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+        .result-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .risk-high {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        .risk-medium {
+            border-left-color: #ffc107;
+            background: #fffbf0;
+        }
+        .risk-low {
+            border-left-color: #28a745;
+            background: #f0fff4;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            color: #2f855a;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 GeneWell</h1>
+        <p>Personalized Gene-Disease Risk Prediction System</p>
+        <p>Upload your gene report PDF and get personalized risk predictions</p>
+    </div>
+
+    <div class="container">
+        <div class="upload-section" id="uploadSection">
+            <h2>📄 Upload Gene Report</h2>
+            <p>Drag and drop your PDF gene report here, or click to browse</p>
+            <input type="file" id="fileInput" class="file-input" accept=".pdf,.csv">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                Choose File
+            </button>
+            <p><small>Supported formats: PDF, CSV</small></p>
+        </div>
+
+        <div class="loading" id="loadingSection" style="display: none;">
+            <div class="spinner"></div>
+            <p>Processing your gene report...</p>
+            <p><small>This may take a few moments</small></p>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h2>📊 Prediction Results</h2>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5000';
+        
+        // File upload handling
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInput = document.getElementById('fileInput');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsContent = document.getElementById('resultsContent');
+
+        // Drag and drop functionality
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            // Show loading
+            uploadSection.style.display = 'none';
+            loadingSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+
+            try {
+                // Create FormData
+                const formData = new FormData();
+                formData.append('file', file);
+
+                // Make API request
+                const response = await fetch(`${API_BASE_URL}/predict`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Error processing file: ${error.message}`);
+            } finally {
+                // Hide loading
+                loadingSection.style.display = 'none';
+                uploadSection.style.display = 'block';
+            }
+        }
+
+        function displayResults(data) {
+            resultsSection.style.display = 'block';
+            
+            const results = data.results || [];
+            let html = `
+                <div class="success">
+                    <h3>✅ Analysis Complete</h3>
+                    <p>Successfully analyzed ${data.total_patients} patient(s)</p>
+                </div>
+            `;
+
+            if (results.length > 0) {
+                html += '<div class="results-grid">';
+                
+                results.forEach((result, index) => {
+                    const riskClass = getRiskClass(result.risk_score);
+                    const riskColor = getRiskColor(result.risk_score);
+                    
+                    html += `
+                        <div class="result-card ${riskClass}">
+                            <h3>Patient ${result.patient_id}</h3>
+                            <div class="risk-score">
+                                <strong>Risk Score:</strong> 
+                                <span style="color: ${riskColor}; font-size: 1.2em;">
+                                    ${(result.risk_score * 100).toFixed(1)}%
+                                </span>
+                            </div>
+                            <div class="risk-level">
+                                <strong>Risk Level:</strong> ${result.risk_level}
+                            </div>
+                            <div class="health-status">
+                                <strong>Health Status:</strong> ${result.health_status}
+                            </div>
+                            ${result.error ? `<div class="error">Error: ${result.error}</div>` : ''}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+
+            resultsContent.innerHTML = html;
+        }
+
+        function getRiskClass(riskScore) {
+            if (riskScore > 0.7) return 'risk-high';
+            if (riskScore > 0.4) return 'risk-medium';
+            return 'risk-low';
+        }
+
+        function getRiskColor(riskScore) {
+            if (riskScore > 0.7) return '#dc3545';
+            if (riskScore > 0.4) return '#ffc107';
+            return '#28a745';
+        }
+
+        function showError(message) {
+            resultsSection.style.display = 'block';
+            resultsContent.innerHTML = `
+                <div class="error">
+                    <h3>❌ Error</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // Check API health on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (!response.ok) {
+                    showError('API server is not running. Please start the server first.');
+                }
+            } catch (error) {
+                showError('Cannot connect to API server. Please make sure the server is running at http://localhost:5000');
+            }
+        });
+    </script>
+</body>
+</html>
