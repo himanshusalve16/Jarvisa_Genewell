@@ -1,0 +1,69 @@
+{
+  "dataset_info": {
+    "total_records": 26956,
+    "unique_patients": 2000,
+    "unique_genes": 12,
+    "unique_diseases": 18,
+    "date_generated": "2025-08-23T00:30:00.245469",
+    "filename": "personalized_gene_disease_dataset_20250823_002959.csv"
+  },
+  "patient_demographics": {
+    "age_distribution": {
+      "mean_age": 45.75652915862888,
+      "median_age": 45.0,
+      "min_age": 18,
+      "max_age": 90
+    },
+    "gender_distribution": {
+      "Male": 13795,
+      "Female": 13161
+    },
+    "blood_group_distribution": {
+      "AB+": 3524,
+      "AB-": 3509,
+      "O-": 3478,
+      "B+": 3468,
+      "B-": 3436,
+      "O+": 3374,
+      "A-": 3298,
+      "A+": 2869
+    }
+  },
+  "risk_distribution": {
+    "mean_personalized_risk": 0.7123605505267845,
+    "risk_category_distribution": {
+      "High": 14666,
+      "Medium": 8549,
+      "Low": 3741
+    },
+    "health_status_distribution": {
+      "High Risk": 14666,
+      "At Risk": 8549,
+      "Normal": 3741
+    }
+  },
+  "top_diseases": {
+    "Atherosclerosis": 0.9855376097747232,
+    "Diabetes mellitus": 0.9429151291512915,
+    "Parkinson disease": 0.9408846153846154,
+    "Lung cancer": 0.894790297339593,
+    "Hypertension": 0.8792357121705656,
+    "Hemophilia": 0.8257386759581882,
+    "Arthritis": 0.822480686695279,
+    "Prostate cancer": 0.7831558291650635,
+    "Rheumatoid arthritis": 0.7633714996888613,
+    "Asthma": 0.6497459080280592
+  },
+  "top_genes": {
+    "CDKN2A": 0.9408846153846154,
+    "BRCA1": 0.9007111834961997,
+    "VHL": 0.8421182108626198,
+    "KRAS": 0.7793365149833519,
+    "APC": 0.7658171945701358,
+    "BRCA2": 0.7355295735900963,
+    "AKT1": 0.711942760942761,
+    "PTEN": 0.7025887162714637,
+    "MET": 0.6875965397923876,
+    "PIK3CA": 0.6828013377926422
+  }
+}
