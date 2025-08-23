@@ -519,7 +519,7 @@ class PersonalizedPredictor:
                 
                 result = {
                     'patient_id': patient_data.get('patient_id', f'P{idx:04d}'),
-                    'risk_score': f"{risk_percentage:.1f}%",
+                    'risk_score': risk_score,  # Return raw numeric score (0.0-1.0)
                     'risk_level': risk_level,
                     'health_status': health_status,
                     'raw_score': risk_score
@@ -547,7 +547,7 @@ class PersonalizedPredictor:
                     
                     results.append({
                         'patient_id': patient_data.get('patient_id', f'P{idx:04d}'),
-                        'risk_score': f"{fallback_percentage:.1f}%",
+                        'risk_score': fallback_risk,  # Return raw numeric score (0.0-1.0)
                         'risk_level': risk_level,
                         'health_status': health_status,
                         'raw_score': fallback_risk
@@ -559,7 +559,7 @@ class PersonalizedPredictor:
                     logger.error(f"Fallback calculation also failed: {fallback_error}")
                     results.append({
                         'patient_id': patient_data.get('patient_id', f'P{idx:04d}'),
-                        'risk_score': '0.0%',
+                        'risk_score': 0.0,  # Return raw numeric score (0.0-1.0)
                         'risk_level': 'Unknown',
                         'health_status': 'Error',
                         'error': str(e)
