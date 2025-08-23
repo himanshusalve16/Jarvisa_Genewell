@@ -1,24 +1,52 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import apiService from '../services/apiService';
 
 const UploadReport = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [backendStatus, setBackendStatus] = useState('checking');
+  const [modelInfo, setModelInfo] = useState(null);
+  const [predictionResults, setPredictionResults] = useState(null);
+
+  // Check backend status on component mount
+  useEffect(() => {
+    checkBackendStatus();
+  }, []);
+
+  const checkBackendStatus = async () => {
+    try {
+      setBackendStatus('checking');
+      const healthData = await apiService.checkHealth();
+      setBackendStatus('connected');
+      
+      // Get model info
+      try {
+        const modelData = await apiService.getModelInfo();
+        setModelInfo(modelData);
+      } catch (error) {
+        console.warn('Model not trained yet:', error.message);
+        setModelInfo(null);
+      }
+    } catch (error) {
+      console.error('Backend connection failed:', error);
+      setBackendStatus('disconnected');
+    }
+  };
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
-      // Check file type
-      const allowedTypes = ['.vcf', '.fastq'];
-      const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+      // Validate file using API service
+      const validation = apiService.validateFile(file);
       
-      if (allowedTypes.includes(fileExtension)) {
+      if (validation.isValid) {
         setSelectedFile(file);
         setUploadStatus('');
+        setPredictionResults(null);
       } else {
-        setUploadStatus('Please select a valid .vcf or .fastq file');
+        setUploadStatus(`File validation failed: ${validation.errors.join(', ')}`);
         setSelectedFile(null);
       }
     }
@@ -30,46 +58,27 @@ const UploadReport = () => {
       return;
     }
 
+    if (backendStatus !== 'connected') {
+      setUploadStatus('Backend is not connected. Please check the server status.');
+      return;
+    }
+
     setIsUploading(true);
     setUploadProgress(0);
     setUploadStatus('');
 
     try {
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 200);
+      // Upload file and get predictions
+      const results = await apiService.uploadAndPredict(
+        selectedFile,
+        (progress) => setUploadProgress(progress)
+      );
 
-      // Mock API call
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-
-      // Simulate API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock response
-      const mockResponse = {
-        data: {
-          success: true,
-          message: 'File uploaded successfully',
-          fileId: 'gw_' + Math.random().toString(36).substr(2, 9),
-          fileName: selectedFile.name,
-          fileSize: selectedFile.size,
-          estimatedProcessingTime: '5-10 minutes'
-        }
-      };
-
-      clearInterval(progressInterval);
       setUploadProgress(100);
-      setUploadStatus('Upload successful! Your genomic data is being processed.');
+      setPredictionResults(results);
+      setUploadStatus('Analysis completed successfully!');
       
-      // Reset after success
+      // Reset file selection after success
       setTimeout(() => {
         setSelectedFile(null);
         setUploadProgress(0);
@@ -77,9 +86,32 @@ const UploadReport = () => {
       }, 3000);
 
     } catch (error) {
-      setUploadStatus('Upload failed. Please try again.');
+      setUploadStatus(`Upload failed: ${error.message}`);
       setUploadProgress(0);
       setIsUploading(false);
+    }
+  };
+
+  const handleTrainModel = async () => {
+    try {
+      setUploadStatus('Training model...');
+      const result = await apiService.trainModel();
+      setUploadStatus(`Model trained successfully! Features: ${result.features_count}, Samples: ${result.samples_count}`);
+      
+      // Refresh model info
+      await checkBackendStatus();
+    } catch (error) {
+      setUploadStatus(`Model training failed: ${error.message}`);
+    }
+  };
+
+  const handleDownloadSample = async () => {
+    try {
+      setUploadStatus('Downloading sample data...');
+      await apiService.downloadSampleData();
+      setUploadStatus('Sample data downloaded successfully!');
+    } catch (error) {
+      setUploadStatus(`Download failed: ${error.message}`);
     }
   };
 
@@ -100,9 +132,83 @@ const UploadReport = () => {
             Upload Your Genomic Report
           </h1>
           <p className="text-xl text-healthcare-600 max-w-2xl mx-auto">
-            Upload your .vcf or .fastq files to get personalized AI-powered genomic insights 
+            Upload your CSV or PDF files to get personalized AI-powered genomic insights 
             and risk assessments within minutes.
           </p>
+        </div>
+
+        {/* Backend Status and Model Info */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="card">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-healthcare-800">System Status</h3>
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                backendStatus === 'connected' 
+                  ? 'bg-green-100 text-green-700' 
+                  : backendStatus === 'checking'
+                  ? 'bg-yellow-100 text-yellow-700'
+                  : 'bg-red-100 text-red-700'
+              }`}>
+                {backendStatus === 'connected' ? 'Connected' : 
+                 backendStatus === 'checking' ? 'Checking...' : 'Disconnected'}
+              </div>
+            </div>
+            
+            {backendStatus === 'connected' && (
+              <div className="space-y-3">
+                {modelInfo ? (
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-green-800">Model Status</p>
+                      <p className="text-xs text-green-600">
+                        Features: {modelInfo.features_count || 'N/A'} | 
+                        Model loaded successfully
+                      </p>
+                    </div>
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-yellow-800">Model Status</p>
+                      <p className="text-xs text-yellow-600">Model not trained yet</p>
+                    </div>
+                    <button
+                      onClick={handleTrainModel}
+                      className="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition-colors"
+                    >
+                      Train Model
+                    </button>
+                  </div>
+                )}
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleDownloadSample}
+                    className="flex-1 px-3 py-2 bg-primary-600 text-white text-sm rounded hover:bg-primary-700 transition-colors"
+                  >
+                    Download Sample Data
+                  </button>
+                  <button
+                    onClick={checkBackendStatus}
+                    className="px-3 py-2 bg-healthcare-600 text-white text-sm rounded hover:bg-healthcare-700 transition-colors"
+                  >
+                    Refresh Status
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {backendStatus === 'disconnected' && (
+              <div className="p-3 bg-red-50 rounded-lg">
+                <p className="text-sm text-red-800">
+                  Cannot connect to backend server. Please ensure the server is running on port 5000.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Upload Section */}
@@ -117,7 +223,7 @@ const UploadReport = () => {
               Select Your Genomic File
             </h2>
             <p className="text-healthcare-600">
-              Supported formats: .vcf, .fastq (Max size: 500MB)
+              Supported formats: .csv, .pdf (Max size: 50MB)
             </p>
           </div>
 
@@ -126,7 +232,7 @@ const UploadReport = () => {
             <label className="block">
               <input
                 type="file"
-                accept=".vcf,.fastq"
+                accept=".csv,.pdf"
                 onChange={handleFileSelect}
                 className="hidden"
                 disabled={isUploading}
@@ -152,7 +258,7 @@ const UploadReport = () => {
                     <p className="text-healthcare-600">
                       <span className="font-medium text-primary-600">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-healthcare-500 text-sm">VCF or FASTQ files only</p>
+                    <p className="text-healthcare-500 text-sm">CSV or PDF files only</p>
                   </div>
                 )}
               </div>
@@ -210,6 +316,90 @@ const UploadReport = () => {
             {isUploading ? 'Uploading...' : 'Upload and Analyze'}
           </button>
         </div>
+
+        {/* Results Display */}
+        {predictionResults && (
+          <div className="max-w-4xl mx-auto mt-8">
+            <div className="card">
+              <h3 className="text-xl font-semibold text-healthcare-800 mb-6">Analysis Results</h3>
+              
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-healthcare-600">Total Patients Analyzed</span>
+                  <span className="text-lg font-bold text-primary-600">{predictionResults.total_patients || predictionResults.results?.length || 0}</span>
+                </div>
+              </div>
+
+              {predictionResults.results && predictionResults.results.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-healthcare-200">
+                        <th className="text-left py-3 px-4 font-semibold text-healthcare-800">Patient ID</th>
+                        <th className="text-left py-3 px-4 font-semibold text-healthcare-800">Risk Score</th>
+                        <th className="text-left py-3 px-4 font-semibold text-healthcare-800">Risk Level</th>
+                        <th className="text-left py-3 px-4 font-semibold text-healthcare-800">Health Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {predictionResults.results.map((result, index) => (
+                        <tr key={index} className="border-b border-healthcare-100 hover:bg-healthcare-50">
+                          <td className="py-3 px-4 font-medium text-healthcare-800">
+                            {result.patient_id || `Patient ${index + 1}`}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`font-semibold ${
+                              result.risk_score > 0.7 ? 'text-red-600' : 
+                              result.risk_score > 0.4 ? 'text-yellow-600' : 'text-green-600'
+                            }`}>
+                              {(result.risk_score * 100).toFixed(1)}%
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              result.risk_level === 'High' ? 'bg-red-100 text-red-700' :
+                              result.risk_level === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {result.risk_level}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              result.health_status === 'High Risk' ? 'bg-red-100 text-red-700' :
+                              result.health_status === 'At Risk' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-green-100 text-green-700'
+                            }`}>
+                              {result.health_status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="mt-6 flex space-x-3">
+                <button
+                  onClick={() => setPredictionResults(null)}
+                  className="px-4 py-2 bg-healthcare-600 text-white rounded hover:bg-healthcare-700 transition-colors"
+                >
+                  Clear Results
+                </button>
+                <button
+                  onClick={() => {
+                    // Navigate to risk score page with results
+                    window.location.href = '/risk-score';
+                  }}
+                  className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
+                >
+                  View Detailed Analysis
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Information Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">

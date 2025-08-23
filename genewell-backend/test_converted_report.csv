@@ -1,0 +1,7 @@
+patient_id,age,gender,blood_group,medical_history,report_type,gene_id,gene_symbol,disease_name,disease_class_encoded,gene_value,normal_min,normal_max,status,deviation,score,ei,combined_score,evidence_strength,association_age,research_activity,age_factor,gender_factor,medical_factor,family_factor,lifestyle_factor,bmi_factor,systolic_bp,diastolic_bp,bmi
+P0000,45,Female,G,Diabetes,Diagnostic,9999,Analysis,Unknown disease,0,0.0,0.0,0.0,normal,0.0,0.5,0.5613238264903911,0.5,0.6955108492934226,11,0.056091998535135454,1.0,1.1,1.3,1.0,1.0,1.0,120,80,24.5
+P0001,45,Female,G,Diabetes,Diagnostic,7157,TP53,Breast cancer,1,0.8,0.0,0.0,normal,0.0,0.5,0.5768605782197083,0.5,0.6298343264146664,16,0.026921378548682075,1.0,1.1,1.3,1.0,1.0,1.0,120,80,24.5
+P0002,45,Female,G,Diabetes,Diagnostic,675,BRCA1,Breast cancer,1,2.5,0.0,0.0,normal,0.0,0.5,0.5416425997781367,0.5,0.603078985707002,7,0.07604958117452497,1.0,1.1,1.3,1.0,1.0,1.0,120,80,24.5
+P0003,45,Female,G,Diabetes,Diagnostic,324,APC,Colorectal cancer,1,1.5,0.0,0.0,normal,0.0,0.5,0.5218976838262486,0.5,0.6181512952115675,16,0.05041734707136912,1.0,1.1,1.3,1.0,1.0,1.0,120,80,24.5
+P0004,45,Female,G,Diabetes,Diagnostic,4292,MLH1,Lynch syndrome,1,0.6,0.0,0.0,normal,0.0,0.5,0.5822200761353009,0.5,0.6697441234063393,24,0.037334885208056945,1.0,1.1,1.3,1.0,1.0,1.0,120,80,24.5
+P0005,45,Female,G,Diabetes,Diagnostic,9999,mutations,Unknown disease,0,0.0,0.0,0.0,normal,0.0,0.5,0.5655827972624009,0.5,0.6973125058813356,16,0.07684111726907553,1.0,1.1,1.3,1.0,1.0,1.0,120,80,24.5
