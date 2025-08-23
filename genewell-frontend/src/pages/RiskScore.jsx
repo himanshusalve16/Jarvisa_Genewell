@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
-import axios from 'axios';
+import apiService from '../services/apiService';
 
 const RiskScore = () => {
   const [riskData, setRiskData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [backendStatus, setBackendStatus] = useState('checking');
+  const [error, setError] = useState(null);
 
   // Mock data for genomic risk scores
   const mockRiskData = {
@@ -29,26 +31,40 @@ const RiskScore = () => {
   };
 
   useEffect(() => {
-    // Simulate API call to fetch risk scores
-    const fetchRiskData = async () => {
+    // Check backend status and fetch risk data
+    const initializeData = async () => {
       setLoading(true);
+      setError(null);
+      
       try {
-        // Mock API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Check backend health
+        await apiService.checkHealth();
+        setBackendStatus('connected');
         
-        // In a real app, this would be:
-        // const response = await axios.get('/api/risk-score');
-        // setRiskData(response.data);
+        // Try to get model info
+        try {
+          await apiService.getModelInfo();
+        } catch (error) {
+          console.warn('Model not available:', error.message);
+        }
         
+        // For now, use mock data since we need actual prediction results
+        // In a real implementation, this would come from the prediction results
         setRiskData(mockRiskData);
+        
       } catch (error) {
-        console.error('Error fetching risk data:', error);
+        console.error('Backend connection failed:', error);
+        setBackendStatus('disconnected');
+        setError('Cannot connect to backend server. Please ensure the server is running.');
+        
+        // Fallback to mock data for demonstration
+        setRiskData(mockRiskData);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRiskData();
+    initializeData();
   }, []);
 
   const getRiskLevel = (score) => {
@@ -87,6 +103,22 @@ const RiskScore = () => {
             personalized health insights based on current genomic research.
           </p>
         </div>
+
+        {/* Backend Status */}
+        {backendStatus === 'disconnected' && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <div className="card bg-red-50 border-red-200">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-800">
+                  {error || 'Backend server is not connected. Some features may not work properly.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Overall Score Card */}
         <div className="card mb-8 text-center">
