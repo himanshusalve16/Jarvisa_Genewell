@@ -23,6 +23,6 @@ Thumbs.db
 *.tmp
 *.swp
 
-# Ignore Python cache
+# Python cache
 __pycache__/
 *.pyc
