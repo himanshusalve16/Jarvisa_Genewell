@@ -22,3 +22,7 @@ Thumbs.db
 # Ignore temporary files
 *.tmp
 *.swp
+
+# Ignore Python cache
+__pycache__/
+*.pyc
