@@ -46,7 +46,8 @@ def home():
             '/train': 'Train the ML model with personalized data',
             '/health': 'Check API health',
             '/model-info': 'Get model information and performance',
-            '/sample-data': 'Download sample data for testing'
+            '/sample-data': 'Download sample data for testing',
+            '/generate-fresh-sample': 'Generate fresh sample data with different risk profiles'
         }
     })
 
@@ -246,41 +247,67 @@ def model_info():
 @app.route('/sample-data')
 def get_sample_data():
     """
-    Generate and return sample data for testing
+    Generate and return dynamic sample data for testing with diverse risk profiles
     """
     try:
-        # Generate sample data for personalized prediction
-        import pandas as pd
-        import numpy as np
+        # Import the dynamic patient generator
+        from dynamic_patient_generator import DynamicPatientGenerator
         
-        sample_data = {
-            'gene_id': [7157, 675, 7157, 675],
-            'gene_symbol': ['TP53', 'BRCA1', 'TP53', 'BRCA1'],
-            'disease_name': ['Breast cancer', 'Breast cancer', 'Ovarian cancer', 'Ovarian cancer'],
-            'disease_class_encoded': [1, 1, 1, 1],
-            'score': [0.85, 0.92, 0.78, 0.88],
-            'ei': [0.78, 0.88, 0.72, 0.85],
-            'combined_score': [0.82, 0.90, 0.75, 0.87],
-            'evidence_strength': [0.9, 0.95, 0.85, 0.92],
-            'association_age': [15, 20, 12, 18],
-            'research_activity': [0.06, 0.08, 0.05, 0.07],
-            'age': [45, 52, 38, 41],
-            'gender': ['Female', 'Female', 'Male', 'Male'],
-            'blood_group': ['A+', 'B+', 'O+', 'AB+'],
-            'medical_history': ['Diabetes', 'None', 'Hypertension', 'None'],
-            'bmi': [24.5, 26.8, 23.2, 25.1]
-        }
+        # Generate fresh, diverse sample data
+        generator = DynamicPatientGenerator()
+        patients = generator.generate_diverse_sample_data(20)  # Generate 20 diverse patients
         
-        df = pd.DataFrame(sample_data)
+        # Convert to DataFrame
+        df = pd.DataFrame(patients)
         
         # Save to temporary file
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.csv')
         df.to_csv(temp_file.name, index=False)
         
+        # Generate timestamp for unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f'dynamic_sample_data_{timestamp}.csv'
+        
         return send_file(
             temp_file.name,
             as_attachment=True,
-            download_name='sample_gene_data.csv',
+            download_name=filename,
+            mimetype='text/csv'
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+@app.route('/generate-fresh-sample')
+def generate_fresh_sample():
+    """
+    Generate fresh sample data with different risk profiles every time
+    """
+    try:
+        # Import the dynamic patient generator
+        from dynamic_patient_generator import DynamicPatientGenerator
+        
+        # Generate completely fresh sample data
+        generator = DynamicPatientGenerator()
+        patients = generator.generate_diverse_sample_data(25)  # Generate 25 diverse patients
+        
+        # Convert to DataFrame
+        df = pd.DataFrame(patients)
+        
+        # Save to temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.csv')
+        df.to_csv(temp_file.name, index=False)
+        
+        # Generate timestamp for unique filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f'fresh_sample_data_{timestamp}.csv'
+        
+        return send_file(
+            temp_file.name,
+            as_attachment=True,
+            download_name=filename,
             mimetype='text/csv'
         )
         

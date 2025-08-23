@@ -1,0 +1,21 @@
+patient_id,age,gender,blood_group,bmi,medical_history,gene_id,gene_symbol,disease_name,disease_class_encoded,score,ei,combined_score,evidence_strength,association_age,research_activity
+H0001,74,Male,O-,36.3,Diabetes,2064,ERBB2,Lung Cancer,2,0.92,0.917,0.961,0.976,17,0.1016
+M0001,58,Male,AB-,29.1,High Cholesterol,2064,ERBB2,Lung Cancer,4,0.629,0.765,0.604,0.535,21,0.0459
+M0005,46,Male,AB+,29.8,High Cholesterol,1956,EGFR,Brain Cancer,4,0.549,0.73,0.729,0.68,16,0.0567
+H0002,68,Female,O+,30.1,Hypertension,2064,ERBB2,Lung Cancer,1,0.862,0.752,0.922,0.911,19,0.1272
+M0006,51,Male,O+,27.3,Arthritis,3845,KRAS,Colon Cancer,4,0.529,0.607,0.667,0.784,20,0.043
+L0001,37,Female,AB+,22.6,None,3845,KRAS,Colon Cancer,5,0.366,0.386,0.303,0.205,29,0.0479
+L0002,36,Male,O+,21.7,None,3845,KRAS,Colon Cancer,3,0.287,0.482,0.219,0.429,21,0.0363
+L0004,40,Female,AB-,20.7,None,5888,BRCA2,Stomach Cancer,3,0.246,0.37,0.442,0.279,26,0.035
+H0003,73,Female,AB+,35.5,Diabetes,7157,TP53,Breast Cancer,1,0.884,0.746,0.984,0.802,20,0.1335
+M0004,46,Male,O+,26.1,High Cholesterol,1956,EGFR,Brain Cancer,3,0.77,0.713,0.75,0.706,19,0.0466
+H0005,62,Male,AB-,39.2,Hypertension,7157,TP53,Breast Cancer,1,0.855,0.886,0.984,0.903,17,0.0503
+M0000,44,Female,B+,25.6,Asthma,1026,CDKN2A,Melanoma,3,0.589,0.788,0.513,0.609,20,0.0388
+L0003,29,Female,O+,21.7,None,7157,TP53,Liver Cancer,3,0.323,0.518,0.4,0.24,23,0.0262
+L0005,38,Female,AB+,19.9,None,1956,EGFR,Brain Cancer,5,0.273,0.567,0.295,0.288,29,0.0361
+H0004,75,Male,O-,38.0,Obesity,1026,CDKN2A,Melanoma,3,0.977,0.876,0.939,0.955,16,0.0837
+H0006,71,Female,A+,36.0,Diabetes,1026,CDKN2A,Melanoma,1,0.863,0.884,0.963,0.865,16,0.0974
+M0003,46,Female,A-,25.0,Asthma,1026,CDKN2A,Melanoma,3,0.584,0.635,0.726,0.76,19,0.0731
+M0002,44,Male,B-,25.5,Arthritis,3845,KRAS,Colon Cancer,3,0.533,0.725,0.578,0.564,16,0.0526
+L0000,38,Female,A+,21.6,None,1956,EGFR,Brain Cancer,5,0.258,0.346,0.476,0.39,24,0.0236
+H0000,67,Male,B-,35.9,Obesity,5888,BRCA2,Prostate Cancer,3,0.801,0.862,0.81,0.82,16,0.0592
